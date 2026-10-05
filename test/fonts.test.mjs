@@ -142,6 +142,13 @@ describe("readFontMeta reads family, weight, italic and axes from every containe
     });
   }
 
+  it("reads italic from head.macStyle when the OS/2 bit is clear", () => {
+    const head = Buffer.alloc(54);
+    head.writeUInt16BE(0x02, 44);
+    const meta = readFontMeta(woff2({ name: nameTable("Acme"), "OS/2": os2Table(400, false), head }));
+    assert.equal(meta.italic, true);
+  });
+
   it("reads variable axes from fvar", () => {
     const meta = readFontMeta(
       woff2({
