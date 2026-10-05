@@ -5,7 +5,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/timc0y/wf-cli.git"
+    "url": "git+https://github.com/spurwing-main/wf-cli.git"
   },
   "bin": {
     "wf": "bin/wf.mjs"
