@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Publish guard for public package (github.com/spurwing-main/wf-cli) inside private monorepo.
+// Publish guard for this public package.
 // Checks three leak vectors:
 //   1. PRIVATE TOOLING: Unreleased/undisclosed internal tooling names.
 //   2. CLIENT IDENTITY: Real 24-hex site IDs or client names (use synthetic placeholders).
