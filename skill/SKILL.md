@@ -199,6 +199,20 @@ infers where one ought to point instead.
 Read [links.md](references/links.md) for the options, what counts as internal,
 and what the command deliberately leaves alone.
 
+## Put a set of images into CMS image fields
+
+For a logo set or any batch of images going into an Image field:
+
+1. Read the collection and find its Image field and every item to update.
+2. Upload only the files a person approved: `wf assets upload <files> --site <id> --dry`,
+   then without `--dry`. The command reads the asset ids back.
+3. Set each item's image and its alt text in the same write. Changing an image
+   does not move its alt text.
+4. Run `--check`, then `--dry`, then the write, then a fresh read of each item's
+   image URL, file id and alt.
+5. Fetch each uploaded file and confirm it is the approved one (for an SVG, its
+   colour values). Do not publish as part of this.
+
 ## Check rich-text images before the old site is switched off
 
 An image field is a pointer Webflow maintains. A rich-text field is HTML, and
