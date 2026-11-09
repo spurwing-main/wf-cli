@@ -28,22 +28,15 @@ export const FORBIDDEN_TERMS = [
 ];
 
 /**
- * Client and workspace names that have appeared in this repo's history, plus any
- * that get added later. Lowercase substrings, matched case-insensitively.
+ * Client and workspace names are not kept in this repository. They live in
+ * scripts/client-terms.local.json (git-ignored): a JSON array of lowercase
+ * substrings, matched case-insensitively. The check refuses to run without it,
+ * so a release is never checked against an empty list.
  */
-export const CLIENT_TERMS = [
-  "spurwing",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name",
-  "client-name"
-];
+import { existsSync, readFileSync } from "node:fs";
+const CLIENT_TERMS_FILE = new URL("./client-terms.local.json", import.meta.url);
+if (!existsSync(CLIENT_TERMS_FILE)) {
+  console.error("check-disclosure: scripts/client-terms.local.json is missing; ask the maintainer for the client name list.");
+  process.exit(1);
+}
+export const CLIENT_TERMS = JSON.parse(readFileSync(CLIENT_TERMS_FILE, "utf8"));

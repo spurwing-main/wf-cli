@@ -8,3 +8,6 @@ node_modules/
 # never let a stray copy in the working tree get committed.
 responses/
 *.log
+
+# Client name list for the disclosure check; never commit it.
+scripts/client-terms.local.json

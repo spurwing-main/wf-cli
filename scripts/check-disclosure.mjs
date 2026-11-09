@@ -122,7 +122,7 @@ const assertSkillPackaging = () => {
 const flag = (file, lineNo, line, why) => hits.push({ file: relative(ROOT, file), line: lineNo, why, text: line.trim().slice(0, 120) });
 
 for (const file of walk(ROOT)) {
-  if (file.endsWith("disclosure-terms.mjs")) continue;
+  if (file.endsWith("disclosure-terms.mjs") || file.endsWith("client-terms.local.json")) continue;
   let text;
   try {
     text = readFileSync(file, "utf8");
