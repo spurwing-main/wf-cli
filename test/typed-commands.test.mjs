@@ -314,7 +314,7 @@ describe("no access gate loosened: publish/live paths still need exactly what th
     grants.revokeAll();
   });
 
-  it("--live's underlying PATCH (.../items/{id}/live) still needs a write grant, same tier as any other item edit — this command did not invent a bypass", async () => {
+  it("--live's underlying PATCH (.../items/{id}/live) needs a danger grant and confirms the item id, like a publish", async () => {
     const res = await webflowRequest({
       profile: "acme",
       method: "PATCH",
@@ -322,15 +322,17 @@ describe("no access gate loosened: publish/live paths still need exactly what th
       body: { fieldData: { name: "Acme" } },
       dryRun: true
     });
-    assert.equal(res.data.wouldSend.tierNeeded, "write");
+    assert.equal(res.data.wouldSend.tierNeeded, "danger");
+    assert.equal(res.data.wouldSend.confirmRequired, `--confirm ${ITEM}`);
   });
 
-  it("without any grant, the --live PATCH is refused exactly like any other write (WF_NO_GRANT)", async () => {
+  it("without any grant, the confirmed --live PATCH is refused exactly like any other write (WF_NO_GRANT)", async () => {
     const res = await webflowRequest({
       profile: "acme",
       method: "PATCH",
       path: `collections/${COLLECTION}/items/${ITEM}/live`,
-      body: { fieldData: { name: "Acme" } }
+      body: { fieldData: { name: "Acme" } },
+      confirm: ITEM
     });
     assert.equal(res.ok, false);
     assert.equal(res.errorCode, CODES.WF_NO_GRANT);

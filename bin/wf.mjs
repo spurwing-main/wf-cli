@@ -7,7 +7,7 @@
 //   denied by default and unlocked ONLY by a grant a human issues at an
 //   interactive terminal:  wf grant <profile> --sites <id> [--write] [--danger] [--ttl 15m]
 //   Agents cannot self-grant (grant/token-add require a TTY). Grants expire.
-//   Tiers: read (GET) < write (mutations) < danger (DELETE, publish).
+//   Tiers: read (GET) < write (mutations) < danger (DELETE, publish, live item writes).
 //   SITE-SCOPED (2026-07-27, mandatory): a grant covers ONE profile + the
 //   specific site(s) named in --sites — never the whole workspace/token. A
 //   grant for one site no longer also works against every other site under
@@ -125,7 +125,7 @@
 //      everything and narrowing has to be asked for.)
 //   wf get <path> | post | patch | put | delete      (raw)
 //   --dry on any invoke prints the exact request without sending.
-//   DELETE / publish / webhook creation also require --confirm <target-id>.
+//   DELETE / publish / live item writes / webhook creation also require --confirm <target-id>.
 //   NOTE: collection/item/field paths address a collection id, not a site id,
 //   and single-page paths (pages/{page_id}, e.g. get-metadata,
 //   update-page-settings) address a page id, not a site id — neither can be
@@ -412,7 +412,8 @@ const AGENT_CONTRACT = `wf — agent contract (the CLI enforces all of this; you
    nothing changed) cannot happen from this command. It also checks your slugs
    against a live read of the collection before writing (skipped, and says so,
    under --check/--dry/--no-validate). \`--live\` writes the published item
-   directly and requires restating the item id via --confirm <id>. \`wf item
+   directly, so it is danger tier (--write --danger) and requires restating
+   the item id via --confirm <id>. \`wf item
    publish <collId> <itemId…>\` builds the bulk publish body; it is danger tier
    and its --confirm is the whole SET of item ids, sorted and comma-joined —
    run --dry first, which prints the exact string. A changed id set invalidates
@@ -2577,6 +2578,14 @@ if (cmd === "items" && positionals[1] === "set") {
   const isDraft = parseBoolFlag(flagDraft, "draft");
   const isArchived = parseBoolFlag(flagArchived, "archived");
   if (flagLive && isDraft !== undefined) die("--draft has no effect on a live item — drop --live or drop --draft.");
+  if (flagLive) {
+    console.error(`⚠ --live: writing directly to the LIVE (published) item ${itemId} in collection ${collectionId} — this bypasses staging.`);
+    // The live PATCH is danger tier (tierForRequest in lib/grants.mjs) and the
+    // client refuses it without --confirm <itemId>. Checked here as well so the
+    // refusal comes before the slug-check read spends a call.
+    if (flagConfirm !== itemId)
+      die(`--live requires restating the item id to confirm:  --confirm ${itemId}`, "Verify that id is really the intended item before retyping it.");
+  }
 
   // Unknown-slug refusal needs the collection's REAL fields. This fetches them
   // live — one extra read call, immediately before the write — rather than
@@ -2616,20 +2625,6 @@ if (cmd === "items" && positionals[1] === "set") {
         `Known slugs: ${[...known].join(", ") || "(none)"} — or run \`wf fields ${collectionId}\`.`
       );
     }
-  }
-
-  if (flagLive) {
-    console.error(`⚠ --live: writing directly to the LIVE (published) item ${itemId} in collection ${collectionId} — this bypasses staging.`);
-    // Not part of the grant/tier model (tierForRequest still prices this PATCH
-    // as "write", same as any other item edit — see lib/grants.mjs) — an extra
-    // LOCAL check this command adds on top, so a copy-pasted item id cannot
-    // silently take a live edit. A human reviewing this may reasonably decide
-    // --live deserves "danger" tier instead; that would be a change to
-    // tierForRequest, which this task's hard constraints say not to loosen —
-    // or tighten — without calling it out, so it is flagged here rather than
-    // done unilaterally.
-    if (flagConfirm !== itemId)
-      die(`--live requires restating the item id to confirm:  --confirm ${itemId}`, "Verify that id is really the intended item before retyping it.");
   }
 
   await run({

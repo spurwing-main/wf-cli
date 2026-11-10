@@ -6,8 +6,8 @@ description: >-
   fonts, forms, redirects,
   localisation, CMS item publishing, auditing internal links or rich-text images
   left inside CMS content by a migration, bringing those images in as real site
-  assets, finding or swapping components placed inside rich-text fields, or
-  site-publication preparation through the Webflow Data API. The
+  assets, or finding or swapping components placed inside rich-text fields,
+  through the Webflow Data API. The
   command only works after a person grants access to the named site.
 ---
 
@@ -62,7 +62,7 @@ result. A successful HTTP response alone is not completion.
   the least access needed:
   - read: `wf grant <profile> --sites <id>`;
   - edit: add `--write`; or
-  - delete, publish or create a webhook: add `--write --danger`.
+  - delete, publish CMS items or write a live item: add `--write --danger`.
 - Use `--once` only when the whole job needs one Webflow call. The next call
   uses it, even if that call is only a read.
 - A destructive command also needs `--confirm <target-id>`. Run `--dry` to see
@@ -110,10 +110,9 @@ result. A successful HTTP response alone is not completion.
     wf fields update <collId> <fieldId> --name "Editorial summary" --is-required false
     wf collections groups <collId> --file groups.json --dry   # CMS field groups from slugs
     wf items set <collId> <itemId> --set slug=value    # typed CMS item write
-    wf item publish <collId> <itemId…>             # bulk publish
+    wf item publish <collId> <itemId…> --confirm <sorted,ids>   # bulk publish; --dry prints the value
     wf links audit <siteId> --hosts a.com,www.a.com [--canonical www.a.com]   # same-site link hygiene
     wf images audit <siteId> --check-targets       # rich-text images: host AND weight per item
-    wf publish <siteId> --confirm <siteId>         # every custom domain, not just staging
     wf redirects <siteId>                          # 301 rules in the order they run, then problems
     wf redirects check <siteId> --file new.json --url https://<site>   # before adding any
     wf redirects test --url https://<site> --sitemap <old sitemap>     # after publishing

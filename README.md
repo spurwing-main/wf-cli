@@ -13,10 +13,10 @@ npm run sync-skill   # symlink skill/ into Claude Code / Codex / OpenCode
 
 - **Deny by default.** Every network command requires a live grant. No environment variables or flags bypass this check.
 - **Human-only grants.** `wf grant` and `wf token add` require an interactive TTY. Agents cannot invoke them. Write grants require the profile name for confirmation.
-- **Tiered access.** read (GET) < write (mutations) < danger (DELETE, publish, webhook creation). Read grants cap at 24h; write/danger cap at 2h. `--once` enables single-use grants.
+- **Tiered access.** read (GET) < write (mutations) < danger (DELETE, publish, live item writes, webhook creation). Read grants cap at 24h; write/danger cap at 2h. `--once` enables single-use grants.
 - **Call budgets.** Write grants default to 100 calls; danger grants default to 20 (`--max-calls` overrides; reads are unlimited). Runaway loops exhaust budget and self-revoke.
 - **Circuit breaker.** 10 consecutive failed calls auto-revoke the grant to prevent infinite retries.
-- **Endpoint scoping.** `wf grant acme --write --scope items,fields` limits grants to specific endpoint groups. Out-of-scope and unknown paths are refused.
+- **Endpoint scoping.** `wf grant acme --sites acme-marketing --write --scope items,fields` limits grants to specific endpoint groups. Out-of-scope and unknown paths are refused.
 - **Destructive confirmation.** DELETE, publish, and webhook creation require `--confirm <id>` matching the path resource ID. `--dry` previews display the target ID.
 - **Body contracts.** `wf schema <group> <name>` outputs expected JSON body structure. `--check` validates bodies locally offline before making network calls.
 - **Profile isolation.** One token per client profile, stored in macOS Keychain (file fallback, mode 0600). Grants are isolated per profile.
@@ -58,8 +58,8 @@ wf token add acme            # paste token from Webflow dashboard
 cd ~/Code/acme && wf init    # creates .wf.json with profile and pinned sites
 
 # Daily agent grants:
-wf grant acme --ttl 8h                     # read-only access for the day
-wf grant acme --write --once --for "fix hero copy"  # single mutation grant
+wf grant acme --sites acme-marketing --ttl 8h        # read-only access for the day
+wf grant acme --sites acme-marketing --write --once --for "fix hero copy"  # single mutation grant
 
 # Monitoring & oversight:
 wf grants  ·  wf revoke --all  ·  wf audit report  ·  wf doctor

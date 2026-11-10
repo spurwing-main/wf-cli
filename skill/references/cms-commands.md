@@ -12,7 +12,7 @@ wf fields update <collId> --file field-updates.json
 wf collections groups <collId> --file groups.json
 wf items set <collId> <itemId> --set name=Acme --set slug=acme-ltd
 wf items set <collId> <itemId> --draft true --archived false
-wf item publish <collId> <itemId…>
+wf item publish <collId> <itemId…> --confirm <sorted,ids>
 ```
 
 ## In this file
@@ -128,7 +128,7 @@ Use `wf call items update-item --data …` when the real value must be the text
 `--draft` and `--archived`.
 
 `--live` changes the published copy directly. It skips the normal publish
-step, so the command also requires `--confirm <itemId>`.
+step, so it needs danger access (`--write --danger`) and `--confirm <itemId>`.
 
 ## Add a field
 
