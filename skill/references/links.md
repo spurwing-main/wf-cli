@@ -47,7 +47,7 @@ And a host set that is typed into the command is one a reader can check; an
 inferred set quietly decides what counts as internal.
 
 `--canonical` names the single host that links should use. Which variant that is
-— the bare domain or the `www` one — is a per-site decision that reverses
+(the bare domain or the `www` one) is a per-site decision that reverses
 freely, so it is never assumed. Any same-site link on a different host is
 reported as `wrong-host`. Without `--canonical`, host variants are not judged at
 all. The canonical host is part of the site by definition, so it does not need
@@ -87,7 +87,7 @@ way the host has to correct:
 
 One link can carry several at once. Each finding also carries the same link
 written root-relative, labelled `relative`. That is a restatement of the same
-destination with the host and slash removed, not a proposal — the page it points
+destination with the host and slash removed, not a proposal: the page it points
 to does not change.
 
 Findings are grouped by destination, because that is the unit a reviewer thinks
@@ -105,7 +105,7 @@ catching it.
 
 The status and any `Location` header are reported as facts. The command does not
 follow a redirect to decide where a link ought to point instead, and it never
-proposes a replacement destination — that is editorial judgement.
+proposes a replacement destination. That is editorial judgement.
 
 It talks to the public website rather than the Data API, so the site must be
 published, and it is opt-in for that reason. Destinations are probed a few at a

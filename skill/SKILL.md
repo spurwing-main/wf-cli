@@ -52,6 +52,8 @@ The operation is complete only when the fresh read-back identifies the same site
 and resource, proves the requested fields, and exposes any partial or ignored
 result. A successful HTTP response alone is not completion.
 
+Return `passed`, `findings`, `partial`, `blocked`, or `failed`, the skill spine's words.
+
 ## Safety rules
 
 - Use only `wf` for api.webflow.com. Do not use curl, fetch or another Webflow
@@ -62,7 +64,7 @@ result. A successful HTTP response alone is not completion.
   the least access needed:
   - read: `wf grant <profile> --sites <id>`;
   - edit: add `--write`; or
-  - delete, publish CMS items or write a live item: add `--write --danger`.
+  - delete, publish CMS items or write live items: add `--write --danger`.
 - Use `--once` only when the whole job needs one Webflow call. The next call
   uses it, even if that call is only a read.
 - A destructive command also needs `--confirm <target-id>`. Run `--dry` to see
@@ -91,7 +93,7 @@ result. A successful HTTP response alone is not completion.
     wf find publish                # search it
     wf schema items create-item    # the body shape it wants, with an example (offline)
     wf schema                      # every endpoint with a curated body contract
-    wf sites                       # compact table: name | shortName | id (FREE — no grant)
+    wf sites                       # compact table: name | shortName | id (FREE, no grant)
     wf sites --all                 # every site across EVERY profile (still free)
     wf site exec                   # resolve a Data API site id by name (free)
                                    # (Designer "siteId" = SHORT NAME, not the API id!)
@@ -143,16 +145,16 @@ make many small requests merely to keep the terminal output short.
 
 Read the `errorCode`; each one needs a different response.
 
-- `WF_NO_GRANT` — relay the `wf grant …` line and stop.
-- `WF_GRANT_TIER` / `WF_GRANT_SCOPE` — the current grant does not allow this
+- `WF_NO_GRANT`: relay the `wf grant …` line and stop.
+- `WF_GRANT_TIER` / `WF_GRANT_SCOPE`: the current grant does not allow this
   action or site. Ask for the wider grant shown in the error.
-- `WF_BUDGET_EXHAUSTED` — the grant has no calls left or too many calls failed.
+- `WF_BUDGET_EXHAUSTED`: the grant has no calls left or too many calls failed.
   Stop and report it. Do not ask for another grant merely to retry.
-- `WF_SITE_PIN` — the project does not allow this site. Check that this is the
+- `WF_SITE_PIN`: the project does not allow this site. Check that this is the
   correct client and site.
-- `WF_CONFIRM_REQUIRED` — re-run with the `--confirm <id>` the error names, after
+- `WF_CONFIRM_REQUIRED`: re-run with the `--confirm <id>` the error names, after
   checking the ID is the intended target.
-- `DATA_API_HTTP` — Webflow rejected the request. The message usually names the
+- `DATA_API_HTTP`: Webflow rejected the request. The message usually names the
   problem field. Do not repeat the same request after a 4xx response.
 
 `wf doctor` explains the current setup; `wf doctor codes` prints this list with
@@ -171,7 +173,7 @@ file shapes, locale behaviour and limits.
 `wf cms audit <siteId>` measures how well the collections explain themselves to
 whoever fills them in: help-text coverage on author-facing fields, the
 collections with none at all, and the undocumented fields whose type cannot
-explain them. Read-only. The output is counts rather than a verdict — decide
+explain them. Read-only. The output is counts rather than a verdict. Decide
 what they are worth from who edits the panel. See
 [cms-commands.md](references/cms-commands.md).
 
@@ -188,7 +190,7 @@ the one the content was migrated from. `--canonical www.a.com` names the single
 host links should use; without it, host variants are not judged. Add
 `--check-targets` to report what each destination returns.
 
-`--related-hosts shop.a.com` names other sites — an old shop, a sister brand —
+`--related-hosts shop.a.com` names other sites (an old shop, a sister brand)
 that should appear in the audit but never be rewritten, and keeps them out of the
 headline count.
 
@@ -226,12 +228,12 @@ never an Assets-panel asset, so it cannot be found, replaced or reliably
 compressed, and each re-save of the item mints another orphan copy beside it.
 
 `wf images audit <siteId>` reports every rich-text image that is not a managed
-asset of this site — a foreign host, another Webflow site, or this site's own cdn
-with no asset behind it — grouped by source and by item. Add `--check-targets` to
+asset of this site (a foreign host, another Webflow site, or this site's own cdn
+with no asset behind it), grouped by source and by item. Add `--check-targets` to
 separate "points somewhere foreign" from "already dead". Run it before a client
 decommissions their old CMS: free to fix then, impossible afterwards.
 
-`wf images adopt <collectionId> --site <siteId>` fixes them — it downloads each
+`wf images adopt <collectionId> --site <siteId>` fixes them: it downloads each
 source, converts it to AVIF, uploads it as a real site asset, and repoints the
 html. Always `--dry` first; it prints per-image before/after sizes and writes
 nothing. A source that no longer resolves is reported and left untouched,
@@ -244,7 +246,7 @@ Webflow's own Compress is not a substitute.
 
 A component placed in a CMS rich-text field is stored as markup in the field, not
 as a reference, so no other listing shows the connection. `wf components used
-<siteId>` is the only way to see which components the content depends on — check
+<siteId>` is the only way to see which components the content depends on. Check
 it before changing or deleting one, because a component used only inside rich
 text looks unused everywhere else.
 
@@ -289,10 +291,10 @@ check` before `wf redirects add`, and `wf redirects test` after publishing.
 
 ## Check what happened
 
-- `wf audit report [--days 7]` — calls, errors, average time and recent failures
+- `wf audit report [--days 7]`: calls, errors, average time and recent failures
   for each profile.
-- `wf audit fails [--days 7]` — failed calls with their full error details.
-- `wf audit bloat [--days 7]` — the largest responses, useful when a request is
+- `wf audit fails [--days 7]`: failed calls with their full error details.
+- `wf audit bloat [--days 7]`: the largest responses, useful when a request is
   returning more data than needed.
 
 ## Choose between CMS and static content

@@ -137,6 +137,59 @@ describe("wf call items create-item", () => {
   });
 });
 
+describe("bulk live item writes (create-item-live, update-items-live)", () => {
+  const cases = [
+    ["create-item-live", "POST", { fieldData: { name: "New", slug: "new" } }],
+    ["update-items-live", "PATCH", { items: [{ id: ITEM, fieldData: { name: "Acme" } }] }]
+  ];
+
+  for (const [name, method, body] of cases) {
+    const call = (...extra) => wf("call", "items", name, "--p", `collection_id=${COLLECTION}`, "--data", JSON.stringify(body), ...extra);
+
+    it(`${name}: refuses without --confirm <collId>, or with an item id, before any request`, () => {
+      grant("danger");
+      for (const extra of [[], ["--confirm", ITEM]]) {
+        const res = call(...extra);
+        assert.equal(res.status, 1);
+        assert.match(res.output, /WF_CONFIRM_REQUIRED/);
+        assert.match(res.output, new RegExp(`--confirm ${COLLECTION}`));
+        assert.deepEqual(res.sent, []);
+      }
+    });
+
+    it(`${name}: refuses under a write grant: a live write is danger tier`, () => {
+      grant("write");
+      const res = call("--confirm", COLLECTION);
+      assert.equal(res.status, 1);
+      assert.match(res.output, /WF_GRANT_TIER/);
+      assert.deepEqual(res.sent, []);
+    });
+
+    it(`${name}: sends under a danger grant with the collection id confirmed`, () => {
+      grant("danger");
+      const res = call("--confirm", COLLECTION);
+      assert.equal(res.status, 0, res.output);
+      assert.deepEqual(res.sent, [{ method, path: `/v2/collections/${COLLECTION}/items/live`, body }]);
+    });
+
+    it(`${name}: --dry names danger tier and the collection id to confirm`, () => {
+      const res = call("--dry");
+      assert.equal(res.status, 0, res.output);
+      assert.match(res.output, /"tierNeeded": "danger"/);
+      assert.match(res.output, new RegExp(`"confirmRequired": "--confirm ${COLLECTION}"`));
+      assert.deepEqual(res.sent, []);
+    });
+  }
+
+  it("bulk unpublish (DELETE items/live) stays refused even with the collection id", () => {
+    grant("danger");
+    const res = wf("delete", `collections/${COLLECTION}/items/live`, "--confirm", COLLECTION);
+    assert.equal(res.status, 1);
+    assert.match(res.output, /WF_CONFIRM_REQUIRED/);
+    assert.deepEqual(res.sent, []);
+  });
+});
+
 describe("wf item publish", () => {
   it("refuses without --confirm, or with only part of the id set", () => {
     grant("danger");

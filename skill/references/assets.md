@@ -25,8 +25,8 @@ wf assets upload --dir <path> --site <id> --folder <name>
   check that reads pixels. The run is refused, before the first upload, when a
   file will not decode or when every sampled point is identical. The message
   reports how many unique samples came back out of how many, and their mean.
-- A uniform canvas is not always wrong — a solid-colour swatch is a real thing
-  to upload — so `--allow-uniform` permits it. `--skip-pixel-check` skips
+- A uniform canvas is not always wrong (a solid-colour swatch is a real thing
+  to upload), so `--allow-uniform` permits it. `--skip-pixel-check` skips
   decoding entirely; the two are separate on purpose.
 - The check needs `ffmpeg` on PATH. Without it the run warns that the check is
   **unavailable** and that the images are unverified, and uploads them. An

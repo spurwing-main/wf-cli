@@ -16,8 +16,8 @@ the instance as **markup**, not as a reference. Nothing else in the API reports
 it: a collection listing shows a rich-text field, and the component listing shows
 a component, but neither says the two are connected.
 
-So the only way to know which components a site's content depends on — or to
-change one — is to read the field values and parse them.
+So the only way to know which components a site's content depends on, or to
+change one, is to read the field values and parse them.
 
 ## How an instance is stored
 
@@ -71,7 +71,7 @@ This is the failure the command is built to prevent.
 
 Two components can have properties with identical labels and types and still have
 completely different property IDs. Swap `component-id` and leave `<wf-prop name>`
-alone and the result **still renders** — as an instance of the new component with
+alone and the result **still renders**, as an instance of the new component with
 every value empty, because none of those property IDs belong to it. No error, no
 warning, and the content is gone from the field the next time anything writes it.
 
@@ -79,8 +79,8 @@ So the run refuses, as `WF_COMPONENT_PROP_UNMAPPED`, if any property on any
 instance cannot be paired with one on the target. Add the missing properties to
 the target component with matching labels and types, then re-run.
 
-Properties that exist only on the target are reported too. Those are fine — they
-simply start empty — but you should know they are there before you migrate.
+Properties that exist only on the target are reported too. Those are fine (they
+simply start empty), but you should know they are there before you migrate.
 
 ## What this does not do
 
@@ -93,5 +93,5 @@ instance will carry its own copy. Check the rendered result, not just the field.
 **It does not create or edit components.** The target component must already
 exist, built in the Designer, with the properties you expect.
 
-**It does not touch component instances on static pages** — only those stored
+**It does not touch component instances on static pages**, only those stored
 inside CMS rich-text field values.

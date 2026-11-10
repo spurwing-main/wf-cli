@@ -49,7 +49,7 @@ The command already applies the two rules that make the number mean anything, so
 do not re-derive them:
 
 - **Author-facing fields only.** Webflow's system fields cannot carry help text,
-  and counting them understates every site by roughly the same wrong amount —
+  and counting them understates every site by roughly the same wrong amount:
   one real collection set measured 24% against all fields and 54% against the
   fields an author can annotate.
 - **Opaque fields called out by name.** An undocumented `Headline` is fine
@@ -61,7 +61,7 @@ Collections with no help text at all are reported separately from patchy ones,
 and a collection with no author-facing fields shows `n/a` rather than 0%.
 
 **The output is counts, not a verdict.** Whether the coverage is enough depends
-on who opens that panel and how often — a client editing weekly and a builder who
+on who opens that panel and how often. A client editing weekly and a builder who
 never returns need different answers, and the CLI cannot know which this is.
 Judge it, then write improvements back with `wf fields update --file`, one
 collection per batch, so each change is proved by a fresh readback.
@@ -130,6 +130,10 @@ Use `wf call items update-item --data …` when the real value must be the text
 `--live` changes the published copy directly. It skips the normal publish
 step, so it needs danger access (`--write --danger`) and `--confirm <itemId>`.
 
+Creating or updating many live items at once (`wf call items create-item-live`
+or `wf call items update-items-live`) also skips publishing. It needs danger
+access and `--confirm <collId>`. Run `--dry` first: it names the value.
+
 ## Add a field
 
 `wf fields add` handles the extra data needed by some field types:
@@ -147,5 +151,5 @@ access: `--write --danger`.
 The confirmation value must contain the full, sorted list of item IDs. Run
 with `--dry` to see the exact value. A partial or changed list is refused.
 
-Bulk deletion and bulk live editing do not have the same protection and stay
+Bulk deletion and bulk unpublishing do not have the same protection and stay
 blocked.

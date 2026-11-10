@@ -15,7 +15,7 @@
 
 ## Why this is a separate problem from every other CMS field
 
-An **image field** stores a pointer — a `fileId` and a `url`. Webflow owns that
+An **image field** stores a pointer: a `fileId` and a `url`. Webflow owns that
 file and keeps the stored value pointing at the current variant of it.
 
 A **rich-text field** stores HTML. Webflow does not maintain what is inside it.
@@ -31,7 +31,7 @@ Measured against a live site on 2026-09-08, not inferred:
   Designer step.
 - It is **per image, not per item**. An item with three small images and one
   4.7MB image copied the three and left the one.
-- A source over the **4MB asset cap is skipped silently** — no error, no warning,
+- A source over the **4MB asset cap is skipped silently**: no error, no warning,
   the reference simply stays pointing at wherever it came from. The same
   oversized file passed to an Image field comes back `null`.
 - A source that already returns 404 is **left completely untouched**. That is the
@@ -71,18 +71,18 @@ clean, which is the worst output an audit can give.
 
 Reports every image in a rich-text field, split by what you can do about it.
 
-**Actionable** — depends on a host this site does not control, and dies with it:
+**Actionable**: depends on a host this site does not control, and dies with it:
 
-- `external` — another host entirely. The migration risk.
-- `other-webflow` — a Webflow bucket belonging to a different site. Someone
+- `external`: another host entirely. The migration risk.
+- `other-webflow`: a Webflow bucket belonging to a different site. Someone
   else's asset to delete.
 
-**Context** — nothing to fix, but worth seeing:
+**Context**: nothing to fix, but worth seeing:
 
-- `own-richtext` — this site's rich-text bucket. The normal, final and
+- `own-richtext`: this site's rich-text bucket. The normal, final and
   unavoidable state of a rich-text image. Not a defect, but check its weight:
   this is where an oversized image hides.
-- `own-panel` — this site's Assets-panel bucket. Works today, but the next write
+- `own-panel`: this site's Assets-panel bucket. Works today, but the next write
   to that field copies it into the rich-text bucket and the copy has no variants,
   so it will not stay this way.
 
@@ -125,18 +125,18 @@ Be clear about the outcome, because it is not quite what the name suggests.
 Webflow re-ingests any url written into a rich-text `src` unless it is already in
 this site's **rich-text bucket**, so the stored html ends up pointing at Webflow's
 own copy rather than at the asset we uploaded. "Already on our cdn" is not the
-rule: a url in the Assets-panel bucket is re-ingested too — proven with a fully
+rule: a url in the Assets-panel bucket is re-ingested too, proven with a fully
 processed panel asset, whose copy lost all four `-p-*` variants. Measured
 2026-09-08.
 
 That copy is not detached from it, though. The copy's filename embeds the
 uploaded asset's id, and Webflow refuses to delete that asset while the copy
-exists — so Webflow tracks the relationship and treats the uploaded asset as the
+exists, so Webflow tracks the relationship and treats the uploaded asset as the
 in-use parent. Two things follow: the upload is worth doing, and there is nothing
 to clean up afterwards. Deletion protection is also the answer to "can a client
 break an article by clearing the Assets panel": in the one case tested, no.
 
-What the command controls is the BYTES the page serves — one article went from
+What the command controls is the BYTES the page serves: one article went from
 10.1MB to 1.08MB, published. What it does NOT deliver is responsive images. The
 uploaded asset stays `size: 0` with no variants even after a publish, and Webflow
 emits no `srcset` for a rich-text image, so there is nothing for a browser to
@@ -167,7 +167,7 @@ replace and realign in the editor. Nothing is converted to an embed.
   untouched, and the command exits non-zero so a script notices.
 
 Every image figure it writes is set to **full width**. Webflow stores alignment
-in two places that must agree — an align class and `data-rt-align` — and caps the
+in two places that must agree (an align class and `data-rt-align`) and caps the
 figure with `style="max-width:Npx"` plus `data-rt-max-width`, both taken from the
 natural width of whatever file was there when the image was inserted. That cap is
 what actually decides the rendered width, so setting the alignment alone would
@@ -188,18 +188,18 @@ real, because the reads are what make the plan.
 `adopt` does not create responsive variants, and nothing could. Proven 2026-09-08
 with the strongest possible subject: a fully processed Assets-panel asset with
 `-p-500/800/1080/1600` variants was referenced from a rich-text body, and Webflow
-copied it into the rich-text bucket as a variant-less file — every variant url on
+copied it into the rich-text bucket as a variant-less file: every variant url on
 the copy returns 403 while the original still serves all four. Responsive body
 images therefore need Image fields, or a `srcset` authored by hand.
 
 `--max-width` defaults to 1600 and comes from the **layout**, not the source
 file. Measure the rendered width of the rich-text column and double it for
 retina: a column that renders at 791px wants roughly 1600px, and every pixel
-beyond that is bytes no viewport can use. Never upscales — a source already under
+beyond that is bytes no viewport can use. Never upscales: a source already under
 the target keeps its own width.
 
 `--no-avif` uploads the downloaded original. `--avif-quality` defaults to 65.
-Animated GIFs and SVGs are never converted — a single-frame AVIF would kill the
+Animated GIFs and SVGs are never converted: a single-frame AVIF would kill the
 animation, and AVIF would raster a vector.
 
 Conversion uses macOS `sips`, same as the existing upload downscale.
@@ -236,7 +236,7 @@ text that had just been written, and both times the tooling looked responsible:
 the content was there, an API write happened, the content was gone.
 
 What identified it was that the losses were partial in a way only a stale copy
-explains — a save restored the descriptive alt text (which the tab had) while
+explains: a save restored the descriptive alt text (which the tab had) while
 dropping the captions (which it did not), so the tab had been loaded between the
 two writes.
 
@@ -254,14 +254,14 @@ state that tab was loaded with, not a blank field.
 
 Open questions are tracked in `docs/rich-text-images.md`, with what would settle
 each one. The one that matters before leaning on an authored `srcset` is whether
-a Designer edit preserves it — untested, because every test so far was an API
-write.
+a Designer edit preserves it (untested, because every test so far was an API
+write).
 
 Two things that were open and are now answered, in case older notes say
 otherwise: Webflow refuses to delete an Assets-panel asset whose re-ingested copy
 is referenced from rich text, so a client cannot silently break an article by
 clearing the panel. And content vanishing after a run has been a stale Designer
-tab both times it happened, not the tooling — see the concurrency section above.
+tab both times it happened, not the tooling. See the concurrency section above.
 
 ## Further reading
 

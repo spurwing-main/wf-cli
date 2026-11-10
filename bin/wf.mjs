@@ -125,7 +125,8 @@
 //      everything and narrowing has to be asked for.)
 //   wf get <path> | post | patch | put | delete      (raw)
 //   --dry on any invoke prints the exact request without sending.
-//   DELETE / publish / live item writes / webhook creation also require --confirm <target-id>.
+//   DELETE / publish / live item writes / webhook creation also require --confirm <target-id>
+//   (creating or updating many live items at once confirms the collection id).
 //   NOTE: collection/item/field paths address a collection id, not a site id,
 //   and single-page paths (pages/{page_id}, e.g. get-metadata,
 //   update-page-settings) address a page id, not a site id — neither can be
@@ -367,13 +368,13 @@ const AGENT_CONTRACT = `wf — agent contract (the CLI enforces all of this; you
    files, set env vars, or use other HTTP clients / the official webflow CLI
    / curl against api.webflow.com — all Data API traffic goes through wf so
    it is gated and audited.
-4. TIERS: reads need a read grant; mutations need --write; DELETE and publish
-   need --write --danger. Ask for the LOWEST tier that does the job, name the
+4. TIERS: reads need a read grant; mutations need --write; DELETE, publish
+   and any write to live (published) items need --write --danger. Ask for the LOWEST tier that does the job, name the
    site, say what for, and prefer --once for single mutations.
 5. BEFORE ANY MUTATION: run it with --dry first and check the method, URL and
-   body. Destructive calls (DELETE, publish, webhook creation) additionally
-   require --confirm <target-id> — the dry output names it. Restating the id
-   is the point: verify it is the right resource before you type it.
+   body. Destructive calls (DELETE, publish, live item writes, webhook
+   creation) additionally require --confirm <target-id>; the dry output names
+   it. Restating the id is the point: verify it is the right resource before you type it.
 5a. NEVER HAND-ASSEMBLE A BODY BLIND. The order is: \`wf schema <group>
    <name>\` for the shape (free, no network), assemble the JSON, \`--check\` to
    validate it locally (free, no grant, no profile needed), \`--dry\` to see the
@@ -413,7 +414,9 @@ const AGENT_CONTRACT = `wf — agent contract (the CLI enforces all of this; you
    against a live read of the collection before writing (skipped, and says so,
    under --check/--dry/--no-validate). \`--live\` writes the published item
    directly, so it is danger tier (--write --danger) and requires restating
-   the item id via --confirm <id>. \`wf item
+   the item id via --confirm <id>. Creating or updating many live items at
+   once (\`wf call items create-item-live\` or \`update-items-live\`) is danger
+   tier too and confirms the collection id via --confirm <collId>. \`wf item
    publish <collId> <itemId…>\` builds the bulk publish body; it is danger tier
    and its --confirm is the whole SET of item ids, sorted and comma-joined —
    run --dry first, which prints the exact string. A changed id set invalidates
